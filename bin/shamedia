@@ -1,0 +1,186 @@
+#!/usr/bin/env node
+var fs = require('fs')
+  , path = require('path')
+  , ecstatic = require('ecstatic')
+  , express = require('express')
+  , formidable = require('formidable')
+  , hogan = require('hogan.js')
+  , mkdirp = require('mkdirp')
+  , optimist = require('optimist')
+  , stepdown = require('stepdown')
+  , app = express()
+  , argv = optimist
+      .options({
+        port: {
+          default: 8080
+        }
+      , username: {
+          string: true
+        , default: 'admin'
+        }
+      , password: {
+          string: true
+        , default: 'shamedia'
+        }
+      })
+      .argv
+  , port = process.env.PORT || argv.port
+  , username = process.env.USERNAME || argv.username
+  , password = process.env.PASSWORD || argv.password
+  , env = app.get('env')
+  , templates = {
+      gallery: hogan.compile(fs.readFileSync(path.resolve(__dirname, '..', 'private', 'templates', 'gallery.html')).toString())
+    }
+
+app.put('/media', function (request, response, next) {
+  request.pause()
+  stepdown([
+    function doIt($) {
+      var form = new formidable.IncomingForm()
+        , name = 'file'
+        , generator = $.group()
+
+      form.hash = 'sha1'
+      form.uploadDir = path.join(__dirname, '..', 'private', 'tmp')
+      form.on('file', function (field, file) {
+        var types = file.type.split('/')
+          , newDir = path.join(__dirname, '..', 'private', types[0], types[1])
+          , newPath = path.join(newDir, file.hash)
+          , callback = generator()
+
+        stepdown([
+          function mkdir($) {
+            mkdirp(newDir, $.first())
+          }
+        , function rename($) {
+            fs.rename(file.path, newPath, $.first())
+          }
+        ], function (err) {
+          if (err) {
+            console.error(err)
+          } else {
+            console.log('Received', newPath)
+            callback(null, '/media/' + types[0] + '/' + types[1] + '/' + file.hash)
+          }
+        })
+      })
+
+      form.parse(request, generator())
+
+      request.resume()
+    }
+  , function checkIt($, paths) {
+      response.send({
+        files: paths.filter(function (item) {
+          return typeof item === 'string'
+        })
+      })
+    }
+  ]).on('error', next)
+})
+
+app.get('/media/:type1/:type2/:file', getMedia)
+app.head('/media/:type1/:type2/:file', getMedia)
+function getMedia(request, response, next) {
+  console.log('Getting:', request.url)
+  stepdown([
+    function stat($) {
+      $.data.path = path.join(__dirname, '..', 'private', request.params.type1, request.params.type2, request.params.file)
+      fs.stat($.data.path, $.first())
+    }
+  , function check($, stat) {
+      response.setHeader('Last-Modified', (new Date(stat.mtime)).toUTCString())
+
+      // TODO: ETag
+      // TODO: Cache-Control
+      // TODO: 304
+
+      // TODO: Re-format image to match content-type, and just work off SHA1 for storage?
+      response.setHeader('Content-Type', request.params.type1 + '/' + request.params.type2)
+
+      if (request.method === "HEAD") {
+        return $.finish()
+      }
+
+      var stream = fs.createReadStream($.data.path)
+
+      stream.pipe(response)
+      stream.on('error', next)
+      stream.on('end', $.finish)
+    }
+  ], function done(err) {
+    if (err) {
+      if (err.code === 'ENOENT') {
+        response.statusCode = 404
+        response.end()
+        return
+      }
+
+      next(err)
+      return
+    }
+
+    response.statusCode = 200
+    response.end()
+  })
+}
+
+app.get('/gallery/:name', function (request, response, next) {
+  var filepath = path.join(__dirname, '..', 'private', 'gallery', request.params.name)
+
+  fs.exists(filepath, function (exists) {
+    if (!exists) {
+      response.statusCode = 404
+      response.end()
+      return
+    }
+
+    fs.readFile(filepath, function (err, buffer) {
+      var data = JSON.parse(buffer)
+        , content = templates.gallery.render(data)
+
+      response.statusCode = 200
+      response.end(content)
+    })
+  })
+})
+
+app.put('/gallery/:name', express.bodyParser())
+app.put('/gallery/:name', function (request, response, next) {
+  if (!request.body || !Array.isArray(request.body.media)) {
+    next(new Error('Invalid Body'))
+    return
+  }
+
+  // TODO: Scrub media, and make sure it's a list of SHAs.
+
+  request.body.name = request.params.name
+
+  fs.writeFile(path.join(__dirname, '..', 'private', 'gallery', request.params.name.toLowerCase()), new Buffer(JSON.stringify(request.body, null, 2), 'utf8'), function (err) {
+    if (err) {
+      next(err)
+      return
+    }
+
+    response.statusCode = 200
+    response.end()
+  })
+})
+
+app.use(express.logger())
+app.use(app.router)
+app.use('/admin', express.basicAuth(username, password))
+app.use('/admin', ecstatic(path.join(__dirname, '..', 'private', 'admin')))
+app.use('/', ecstatic(path.join(__dirname, '..', 'public')))
+app.use(express.errorHandler())
+
+app.listen(port, function () {
+  console.log('Listening on port ' + port)
+})
+
+process.on('uncaughtException', console.error)
+
+// TODO:
+// * Create galleries in Admin
+// * GET galleries by name
+// * Password-protect images/galleries?

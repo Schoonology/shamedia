@@ -1,0 +1,16 @@
+/* www.humanstxt.org */
+/* TEAM */
+Developer/Designer/ThisIsMySiteSoIDidEverything: Michael Schoonmaker
+Site: schoonology.com
+Twitter: Schoonology
+Location: Sunnyvale, CA, USA
+
+/* THANKS */
+
+
+/* SITE */
+Last update: 2012
+Standards: HTML5, CSS3
+Components: Node
+Software: Sublime Text, Git
+

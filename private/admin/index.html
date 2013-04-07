@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<!-- paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/ -->
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js lt-ie9" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Upload</title>
+
+    <link rel="stylesheet" media="all" href="/admin/css/foundation.css">
+    <link rel="stylesheet" media="all" href="/admin/css/style.css" />
+
+    <script src="/admin/js/modernizr.foundation.js"></script>
+
+    <!-- IE Fix for HTML5 Tags -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="row">
+      <div class="twelve columns">
+        <form id="upload" action="/media" method="PUT" enctype="multipart/form-data">
+          <fieldset>
+            <legend>Upload Files</legend>
+            <input type="file" id="files" name="files[]" multiple="multiple"></input>
+            <div id="files-target" class="panel">... or drop files here!</div>
+            <input type="submit" class="button pull-right" value="Go!"></input>
+          </fieldset>
+        </form>
+      </div>
+    </div>
+    <div class="row" id="messages">
+      <div class="twelve columns" id="progress">
+      </div>
+    </div>
+
+    <script src="/admin/js/jquery.js"></script>
+    <script src="/admin/js/jquery.foundation.mediaQueryToggle.js"></script>
+    <script src="/admin/js/jquery.foundation.forms.js"></script>
+    <script src="/admin/js/jquery.foundation.reveal.js"></script>
+    <script src="/admin/js/jquery.foundation.orbit.js"></script>
+    <script src="/admin/js/jquery.foundation.navigation.js"></script>
+    <script src="/admin/js/jquery.foundation.buttons.js"></script>
+    <script src="/admin/js/jquery.foundation.tabs.js"></script>
+    <script src="/admin/js/jquery.foundation.tooltips.js"></script>
+    <script src="/admin/js/jquery.foundation.accordion.js"></script>
+    <script src="/admin/js/jquery.placeholder.js"></script>
+    <script src="/admin/js/jquery.foundation.alerts.js"></script>
+    <script src="/admin/js/jquery.foundation.topbar.js"></script>
+    <script src="/admin/js/jquery.foundation.joyride.js"></script>
+    <script src="/admin/js/jquery.foundation.clearing.js"></script>
+    <script src="/admin/js/jquery.foundation.magellan.js"></script>
+
+    <!-- Included JS Files (Compressed) -->
+    <!--
+    <script src="/admin/js/jquery.js"></script>
+    <script src="/admin/js/foundation.min.js"></script>
+    -->
+
+    <script src="/admin/js/app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<!-- paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/ -->
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js lt-ie9" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Upload</title>
+
+    <link rel="stylesheet" media="all" href="/css/foundation.css">
+    <link rel="stylesheet" media="all" href="/css/style.css" />
+
+    <script src="/js/modernizr.foundation.js"></script>
+
+    <!-- IE Fix for HTML5 Tags -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="row">
+      <div class="twelve columns">
+        <h1>{{name}}</h1>
+        <div id="gallery">
+          {{#media}}
+            <img src="/media/{{url}}"></img>
+          {{/media}}
+        </div>
+<!--         <ul class="block-grid three-up" data-clearing>
+          {{#media}}
+          <li><a href="/media/{{url}}"><img src="/media/{{url}}" alt="{{title}}"></img></a></li>
+          {{/media}}
+        </ul>
+ -->      </div>
+    </div>
+
+    <script src="/js/jquery.js"></script>
+    <script src="/js/foundation.min.js"></script>
+    <script src="/js/init.js"></script>
+    <script>
+      $(window).load(function() {
+        $("#gallery").orbit()
+      })
+    </script>
+  </body>
+</html>
